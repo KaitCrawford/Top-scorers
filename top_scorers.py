@@ -1,0 +1,77 @@
+import sys
+
+
+def find_highest(input: str):
+    """
+    Takes csv formatted input of user names and scores and returns list of all users
+    with the highest score. Each line in input is "First Name,Second Name,Score"
+    Outputs tupple with highest score and list of names with that store
+    """
+    highest_scorers = []
+    highest_score = 0
+    users = input.split("\n")
+
+    for line in users:
+        # Skip empty lines or the header line
+        if line == "":
+            continue
+        if line.lower().find("first name") >= 0:
+            continue
+
+        details = line.split(",")
+        user_score = int(details[2])
+        if user_score == highest_score:
+            # This score is one of the highest, append this user's info
+            highest_scorers.append(f"{details[0]} {details[1]}")
+            continue
+        if user_score > highest_score:
+            # This score is higher than previous highest
+            # So update all the information with the new highest
+            highest_scorers = [f"{details[0]} {details[1]}"]  # Overwrite the list
+            highest_score = user_score
+
+    return (highest_scorers, highest_score)
+
+
+try:
+    input_file = sys.argv[1]
+    with open(input_file, "r") as f:
+        input = f.read()
+except (FileNotFoundError, IndexError):
+    print("Invalid Arguments: Please provide an input file")
+    sys.exit(1)
+
+(highest_users, highest_score) = find_highest(input)
+
+output = ""
+# Sort the users alphabetically
+sorted_users = sorted(highest_users)
+counter = 0
+for name in sorted_users:
+    output += f"{name}"
+    if counter != len(sorted_users):
+        output += " "
+        counter += 1
+
+output += f"\nScore: {highest_score}"
+
+try:
+    output_file = sys.argv[2]
+    with open(output_file, "w") as f:
+        f.write(output)
+except (PermissionError, IndexError):
+    print(output)
+
+
+"""
+Changes to make this reusable/production ready:
+- (Done) Don't hard code the default input. Return a helpful error
+- Unit tests
+- Use python's csv lib (using built-in lib reduces risk of errors)
+- Use typer and typing_extensions libs to annotate params with useful help text
+    - This would also simplify proper documention and validation of input parameters
+- Package as an app to improve usability/sharability and lib dependancy management
+- Consider wider context and reusablity
+    - eg Decoupling the csv processing from the logic to find the highest scores would
+    enable that logic to be used regardless of input format
+"""
