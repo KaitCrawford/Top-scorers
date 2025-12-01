@@ -31,13 +31,30 @@ def create_or_update_user_score(
     Add a new user's score to the db or update an existing score
     NOTE: A good feature to add here would be a flag that indicates if we should replace or
     ignore scores for exising users
+    NOTE: We should move this functionality to db_models.py for reusability
     """
-    # TODO: replace scores for existing users
-    db_user_score = UserScore.model_validate(user_score)
-    session.add(db_user_score)
+    # Check the input data is valid for the model (FastAPI validation should prevent us
+    # getting here with invalid data)
+    new_user_score = UserScore.model_validate(user_score)
+
+    # Check for users with the same names in the database
+    sql_expr_obj = select(UserScore).where(
+        func.lower(UserScore.first_name) == user_score.first_name.lower(),
+        func.lower(UserScore.second_name) == user_score.second_name.lower()
+    )
+    user_scores = session.exec(sql_expr_obj).all()
+    if len(user_scores) == 0:
+        # The user doesn't exist, so create it
+        session.add(new_user_score)
+    if len(user_scores) > 0:
+        # The user does exist, so update it
+        # NOTE: We're ignoring duplicates but it would be better to handle them
+        user_scores[0].score = user_score.score
+        new_user_score = user_scores[0]
+        session.add(new_user_score)
     session.commit()
-    session.refresh(db_user_score)
-    return db_user_score
+    session.refresh(new_user_score)
+    return new_user_score
 
 
 @app.get("/user_scores/", response_model=UserScoreBase)
