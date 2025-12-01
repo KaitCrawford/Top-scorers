@@ -3,8 +3,10 @@ from typing import Annotated
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select, func
 
-from db_models import UserScoreBase, UserScore, get_session
+from db_models import UserScoreBase, UserScore, get_session, create_or_update_user_score
 
+
+# TODO: Add auth
 
 app = FastAPI()
 
@@ -24,7 +26,7 @@ def show_all(session: SessionDep) -> list[UserScore]:
 
 
 @app.post("/user_scores/", response_model=UserScoreBase)
-def create_or_update_user_score(
+def post_user_score(
         user_score: UserScoreBase, session: SessionDep
     ) -> UserScoreBase:
     """
@@ -36,23 +38,8 @@ def create_or_update_user_score(
     # Check the input data is valid for the model (FastAPI validation should prevent us
     # getting here with invalid data)
     new_user_score = UserScore.model_validate(user_score)
+    new_user_score = create_or_update_user_score(new_user_score, session)
 
-    # Check for users with the same names in the database
-    sql_expr_obj = select(UserScore).where(
-        func.lower(UserScore.first_name) == user_score.first_name.lower(),
-        func.lower(UserScore.second_name) == user_score.second_name.lower()
-    )
-    user_scores = session.exec(sql_expr_obj).all()
-    if len(user_scores) == 0:
-        # The user doesn't exist, so create it
-        session.add(new_user_score)
-    if len(user_scores) > 0:
-        # The user does exist, so update it
-        # NOTE: We're ignoring duplicates but it would be better to handle them
-        user_scores[0].score = user_score.score
-        new_user_score = user_scores[0]
-        session.add(new_user_score)
-    session.commit()
     session.refresh(new_user_score)
     return new_user_score
 
