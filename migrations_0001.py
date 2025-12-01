@@ -1,4 +1,4 @@
-from db_models import create_db_and_tables
+from db_utils import create_db_and_tables
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select, func
 
-from db_models import UserScoreBase, UserScore, get_session, create_or_update_user_score
+from db_utils import UserScoreBase, UserScore, get_session, create_or_update_user_score
 
 
 # TODO: Add auth

@@ -2,7 +2,7 @@ import sys
 
 from sqlmodel import Session
 
-from db_models import UserScore, engine, create_or_update_user_score
+from db_utils import UserScore, engine, create_or_update_user_score
 
 
 def find_highest(input: str):
