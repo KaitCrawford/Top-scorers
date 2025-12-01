@@ -8,6 +8,9 @@ from db_models import UserScoreBase, UserScore, get_session
 
 app = FastAPI()
 
+# SqlAlchemy and SQLModel use sessions to manage queries to the database. This line
+# creates a Dependancy object that we can use with FastAPI's dependency injection to
+# provide a DB session during the requests. 
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @app.get("/", response_model=list[UserScoreBase])
@@ -29,6 +32,7 @@ def create_or_update_user_score(
     NOTE: A good feature to add here would be a flag that indicates if we should replace or
     ignore scores for exising users
     """
+    # TODO: replace scores for existing users
     db_user_score = UserScore.model_validate(user_score)
     session.add(db_user_score)
     session.commit()
@@ -58,7 +62,13 @@ def get_score_for_user(first_name: str, second_name: str, session: SessionDep) -
     return user_scores[0]
 
 
-@app.get("/top_scorers/")
-def get_highest_scoring_users():
-    # TODO: filter users for highest score. This will be done using sql
-    return "not yet implemented"
+@app.get("/top_scorers/", response_model=list[UserScoreBase])
+def get_highest_scoring_users(session: SessionDep):
+    """
+    Return the info for users with the highest scores.
+    """
+    # Write a subquery to get the max score and use that in the where clause
+    sql_subquery = select(func.max(UserScore.score)).scalar_subquery()
+    sql_expr_obj = select(UserScore).where(UserScore.score == sql_subquery)
+    user_scores = session.exec(sql_expr_obj).all()
+    return user_scores
