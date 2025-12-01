@@ -1,37 +1,48 @@
 import sys
 
+from sqlmodel import Session
+
+from db_models import UserScore, engine, create_or_update_user_score
+
 
 def find_highest(input: str):
     """
     Takes csv formatted input of user names and scores and returns list of all users
     with the highest score. Each line in input is "First Name,Second Name,Score"
-    Outputs tupple with highest score and list of names with that store
+    Outputs tupple with highest score and list of names with that store.
+    Each unique First Name, Second Name pair is stored in the database
     """
     highest_scorers = []
     highest_score = 0
     users = input.split("\n")
 
-    for line in users:
-        # Skip empty lines or the header line
-        if line == "":
-            continue
-        if line.lower().find("first name") >= 0:
-            continue
+    with Session(engine) as session:
+        for line in users:
+            # Skip empty lines or the header line
+            if line == "":
+                continue
+            if line.lower().find("first name") >= 0:
+                continue
 
-        details = line.split(",")
-        user_score = int(details[2])
-        if user_score == highest_score:
-            # This score is one of the highest, append this user's info
-            highest_scorers.append(f"{details[0]} {details[1]}")
-            continue
-        if user_score > highest_score:
-            # This score is higher than previous highest
-            # So update all the information with the new highest
-            highest_scorers = [f"{details[0]} {details[1]}"]  # Overwrite the list
-            highest_score = user_score
+            details = line.split(",")
+
+            # Add row to db
+            db_object = UserScore(first_name=details[0], second_name=details[1], score=int(details[2]))
+            create_or_update_user_score(db_object, session)
+
+            # Find highest scorers
+            user_score = int(details[2])
+            if user_score == highest_score:
+                # This score is one of the highest, append this user's info
+                highest_scorers.append(f"{details[0]} {details[1]}")
+                continue
+            if user_score > highest_score:
+                # This score is higher than previous highest
+                # So update all the information with the new highest
+                highest_scorers = [f"{details[0]} {details[1]}"]  # Overwrite the list
+                highest_score = user_score
 
     return (highest_scorers, highest_score)
-
 
 try:
     input_file = sys.argv[1]
@@ -64,6 +75,10 @@ except (PermissionError, IndexError):
 
 
 """
+Assumptions:
+- When running this program, only the scores in the input file should be considered
+    for the top scores (values in the database are excluded)
+
 Changes to make this reusable/production ready:
 - (Done) Don't hard code the default input. Return a helpful error
 - Unit tests
