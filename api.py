@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from fastapi import FastAPI, Depends, HTTPException
-from sqlmodel import Session, select, func
+from fastapi import Depends, FastAPI, HTTPException
+from sqlmodel import Session, func, select
 
-from db_utils import UserScoreBase, UserScore, get_session, create_or_update_user_score
-
+from db_utils import (UserScore, UserScoreBase, create_or_update_user_score,
+                      get_session)
 
 # TODO: Add auth
 

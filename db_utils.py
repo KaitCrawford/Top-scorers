@@ -1,4 +1,4 @@
-from sqlmodel import Field, Session, SQLModel, create_engine, select, func
+from sqlmodel import Field, Session, SQLModel, create_engine, func, select
 
 
 class UserScoreBase(SQLModel):
