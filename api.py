@@ -1,12 +1,13 @@
 from typing import Annotated
+import hashlib, hmac
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlmodel import Session, func, select
 
-from db_utils import (UserScore, UserScoreBase, create_or_update_user_score,
+from db_utils import (AdminUser, UserScore, UserScoreBase, create_or_update_user_score,
                       get_session)
 
-# TODO: Add auth
 
 app = FastAPI()
 
@@ -14,6 +15,15 @@ app = FastAPI()
 # creates a Dependancy object that we can use with FastAPI's dependency injection to
 # provide a DB session during the requests. 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+# Uncomment the sections below for basic bearer authentication
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+#
+# def get_user_from_token(token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep):
+#     sql_expr_obj = select(AdminUser).where(AdminUser.username == token)
+#     admin_user = session.exec(sql_expr_obj).one()
+#     return admin_user
+
 
 @app.get("/", response_model=list[UserScoreBase])
 def show_all(session: SessionDep) -> list[UserScore]:
@@ -76,3 +86,32 @@ def get_highest_scoring_users(session: SessionDep):
     sql_expr_obj = select(UserScore).where(UserScore.score == sql_subquery)
     user_scores = session.exec(sql_expr_obj).all()
     return user_scores
+
+# ##################
+# Authentication
+# For authentication uncomment the section at the top of this file and add the line
+# below to the params of all paths
+# current_user: Annotated[AdminUser, Depends(get_user_from_token)]
+
+@app.post("/token")
+async def login(
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        session: SessionDep
+    ):
+    # Get user for username
+    sql_expr_obj = select(AdminUser).where(AdminUser.username == form_data.username)
+    admin_user = session.exec(sql_expr_obj).one()
+    if not admin_user:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    # Check password
+    # This uses hashlib's built in key derivation which is recommended for passwords
+    password = form_data.password
+    if not hmac.compare_digest(
+            admin_user.password_hash,
+            hashlib.pbkdf2_hmac('sha256', password.encode(), admin_user.salt, 100000)
+        ):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    # NOTE: Use a more better token here
+    return {"access_token": admin_user.username, "token_type": "bearer"}
