@@ -43,7 +43,6 @@ def post_user_score(
     Add a new user's score to the db or update an existing score
     NOTE: A good feature to add here would be a flag that indicates if we should replace or
     ignore scores for exising users
-    NOTE: We should move this functionality to db_models.py for reusability
     """
     # Check the input data is valid for the model (FastAPI validation should prevent us
     # getting here with invalid data)
@@ -59,7 +58,7 @@ def get_score_for_user(
         first_name: str, second_name: str, session: SessionDep
     ) -> UserScore:
     """
-    Return the info for the user corresponding to first_name and second_name.
+    Return the info for the user corresponding to first_name and second_name. Case insensitive
     """
     sql_expr_obj = select(UserScore).where(
         func.lower(UserScore.first_name) == first_name.lower(),
@@ -100,6 +99,11 @@ async def login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: SessionDep
     ):
+    """
+    Authenticates the given username and password against the database
+    The returned token will be stored in browswer cookies and sent in the header of
+    future requests
+    """
     # Get user for username
     sql_expr_obj = select(AdminUser).where(AdminUser.username == form_data.username)
     admin_user = session.exec(sql_expr_obj).one()
