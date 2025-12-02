@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlmodel import Session, func, select
 
-from db_utils import (AdminUser, UserScore, UserScoreBase, create_or_update_user_score,
+from .db_utils import (AdminUser, UserScore, UserScoreBase, create_or_update_user_score,
                       get_session)
 
 

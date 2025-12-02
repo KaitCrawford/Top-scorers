@@ -6,9 +6,9 @@ Demo application made for a tech assessment
 2. Create ve `python3.10 -m venv ve`
 3. Activate ve `source ve/bin/activate`
 4. Install requirements `pip install -r requirements.txt`
-5. Run migrations `python migrations_0001.py`
-6. To run script: `python top_scorers.py input_file.csv`
-7. To run api: `fastapi run`
+5. Run migrations `python src/migrations_0001.py`
+6. To run script: `python src/top_scorers.py input_file.csv`
+7. To run api: `fastapi run src/api.py`
 
 ## API endpoints:
 - GET "/" shows all scores in the database
