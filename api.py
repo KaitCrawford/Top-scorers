@@ -38,7 +38,7 @@ def show_all(session: SessionDep) -> list[UserScore]:
 @app.post("/user_scores/", response_model=UserScoreBase)
 def post_user_score(
         user_score: UserScoreBase, session: SessionDep
-    ) -> UserScoreBase:
+    ) -> UserScore:
     """
     Add a new user's score to the db or update an existing score
     NOTE: A good feature to add here would be a flag that indicates if we should replace or
@@ -55,7 +55,9 @@ def post_user_score(
 
 
 @app.get("/user_scores/", response_model=UserScoreBase)
-def get_score_for_user(first_name: str, second_name: str, session: SessionDep) -> UserScore:
+def get_score_for_user(
+        first_name: str, second_name: str, session: SessionDep
+    ) -> UserScore:
     """
     Return the info for the user corresponding to first_name and second_name.
     """
@@ -77,7 +79,7 @@ def get_score_for_user(first_name: str, second_name: str, session: SessionDep) -
 
 
 @app.get("/top_scorers/", response_model=list[UserScoreBase])
-def get_highest_scoring_users(session: SessionDep):
+def get_highest_scoring_users(session: SessionDep) -> list[UserScore]:
     """
     Return the info for users with the highest scores.
     """
