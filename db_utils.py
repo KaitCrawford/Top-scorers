@@ -1,3 +1,5 @@
+import hashlib, os
+
 from sqlmodel import Field, Session, SQLModel, create_engine, func, select
 
 
@@ -17,6 +19,16 @@ class UserScore(UserScoreBase, table=True):
     This is a model to represent the data stored in the database. It is a table in the db
     """
     id: int | None = Field(default=None, primary_key=True)
+
+
+class AdminUser(SQLModel, table=True):
+    """
+    This is a model to be used for basic authentication
+    """
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(index=True)
+    password_hash: bytes = Field()
+    salt: bytes = Field()
 
 
 # Setup the db connection
@@ -70,3 +82,16 @@ def create_or_update_user_score(new_user_score: UserScoreBase, session: Session)
     session.commit()
     return new_user_score
 
+
+def create_admin_user():
+    # NOTE: This is terrible. Having a username and password in the code is a bad idea
+    # but auth is already somewhat out of scope, so I've taken a short-cut
+    uname = "admin"
+    pw = "admin"
+    salt = os.urandom(16)
+
+    hashed_pw = hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 100000)
+    admin_user = AdminUser(username=uname, password_hash=hashed_pw, salt=salt)
+    with Session(engine) as session:
+        session.add(admin_user)
+        session.commit()
