@@ -61,7 +61,9 @@ def test_root_lists_scores(session: Session, client: TestClient):
 
 def test_post_score_new_user(session: Session, client: TestClient):
     response = client.post(
-        "/user_scores/", json={"first_name": "first", "second_name": "user", "score": 13}
+        "/user_scores/", json={
+            "first_name": "first", "second_name": "user", "score": 13
+        }
     )
 
     # Assert API response
@@ -83,7 +85,9 @@ def test_post_score_exising_user(session: Session, client: TestClient):
     session.commit()
 
     response = client.post(
-        "/user_scores/", json={"first_name": "first", "second_name": "user", "score": 13}
+        "/user_scores/", json={
+            "first_name": "first", "second_name": "user", "score": 13
+        }
     )
 
     # Assert API response
@@ -99,13 +103,17 @@ def test_post_score_exising_user(session: Session, client: TestClient):
     assert db_score.score == 13
 
 
-def test_post_score_exising_user_case_insensitive(session: Session, client: TestClient):
+def test_post_score_exising_user_case_insensitive(
+        session: Session, client: TestClient
+    ):
     score_1 = UserScore(first_name="first", second_name="user", score=25)
     session.add(score_1)
     session.commit()
 
     response = client.post(
-        "/user_scores/", json={"first_name": "First", "second_name": "UseR", "score": 13}
+        "/user_scores/", json={
+            "first_name": "First", "second_name": "UseR", "score": 13
+        }
     )
 
     # Assert API response
@@ -123,7 +131,9 @@ def test_post_score_exising_user_case_insensitive(session: Session, client: Test
 
 def test_post_score_invalid_data(client: TestClient):
     response = client.post(
-        "/user_scores/", json={"firstname": "first", "second_name": "user", "score": 25}
+        "/user_scores/", json={
+            "firstname": "first", "second_name": "user", "score": 25
+        }
     )
 
     # Assert API response
@@ -147,9 +157,13 @@ def test_get_score_for_given_user(session: Session, client: TestClient):
     session.add(score_2)
     session.commit()
 
-    response = client.get(f"/user_scores/?first_name={score_1.first_name}&second_name={score_1.second_name}")
+    response = client.get(
+        f"/user_scores/?first_name={score_1.first_name}&second_name={score_1.second_name}"
+    )
     assert response.status_code == 200
-    assert response.json() == {"first_name": "first", "second_name": "user", "score": 25}
+    assert response.json() == {
+        "first_name": "first", "second_name": "user", "score": 25
+    }
 
 
 def test_get_score_for_invalid_user(session: Session, client: TestClient):
@@ -174,7 +188,9 @@ def test_get_top_scorers_single(session: Session, client: TestClient):
 
     response = client.get(f"/top_scorers/")
     assert response.status_code == 200
-    assert response.json() == [{"first_name": "first", "second_name": "user", "score": 25}]
+    assert response.json() == [{
+        "first_name": "first", "second_name": "user", "score": 25
+    }]
 
 
 def test_get_top_scorers_multiple(session: Session, client: TestClient):
