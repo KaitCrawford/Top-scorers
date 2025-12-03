@@ -7,8 +7,10 @@ Demo application made for a tech assessment
 3. Activate ve `source ve/bin/activate`
 4. Install requirements `pip install -r requirements.txt`
 5. Run migrations `python src/migrations_0001.py`
-6. To run script: `python src/top_scorers.py input_file.csv`
-7. To run api: `fastapi run src/api.py`
+
+## Running instructions:
+- To run script: `python src/top_scorers.py input_file.csv`
+- To run api: `fastapi run src/api.py`
 
 ## API endpoints:
 - GET "/" shows all scores in the database
@@ -22,3 +24,6 @@ Demo application made for a tech assessment
 - Adding a score with the same first name and second name as an existing row will update the existing row, not create a new row. This check is case insensitive. This behaviour is consistent regardless of if the score is added using the script or the api endpoint
 - More notes can be found in comments starting with "NOTE"
 
+## Test instructions:
+1. Install requirements `pip install -r requirements-dev.txt`
+2. Run tests `pytest`

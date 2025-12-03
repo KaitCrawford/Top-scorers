@@ -1,0 +1,2 @@
+httpx # probably already included with fastapi[standard]
+pytest
