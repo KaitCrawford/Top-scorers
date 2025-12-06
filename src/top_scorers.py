@@ -2,7 +2,7 @@ import sys
 
 from sqlmodel import Session
 
-from db_utils import UserScore, create_or_update_user_score, engine
+from .db_utils import UserScore, create_or_update_user_score, engine
 
 
 def find_highest(input: str):
@@ -44,34 +44,43 @@ def find_highest(input: str):
 
     return (highest_scorers, highest_score)
 
-try:
-    input_file = sys.argv[1]
-    with open(input_file, "r") as f:
-        input = f.read()
-except (FileNotFoundError, IndexError):
-    print("Invalid Arguments: Please provide an input file")
-    sys.exit(1)
 
-(highest_users, highest_score) = find_highest(input)
+def handle():
+    """
+    Handles the program opperation. Loads specified file and writes output
+    """
+    try:
+        input_file = sys.argv[1]
+        with open(input_file, "r") as f:
+            input = f.read()
+    except (FileNotFoundError, IndexError):
+        print("Invalid Arguments: Please provide an input file")
+        sys.exit(1)
 
-output = ""
-# Sort the users alphabetically
-sorted_users = sorted(highest_users)
-counter = 0
-for name in sorted_users:
-    output += f"{name}"
-    if counter != len(sorted_users):
-        output += " "
-        counter += 1
+    (highest_users, highest_score) = find_highest(input)
 
-output += f"\nScore: {highest_score}"
+    output = ""
+    # Sort the users alphabetically
+    sorted_users = sorted(highest_users)
+    counter = 0
+    for name in sorted_users:
+        output += f"{name}"
+        if counter != len(sorted_users):
+            output += " "
+            counter += 1
 
-try:
-    output_file = sys.argv[2]
-    with open(output_file, "w") as f:
-        f.write(output)
-except (PermissionError, IndexError):
-    print(output)
+    output += f"\nScore: {highest_score}"
+
+    try:
+        output_file = sys.argv[2]
+        with open(output_file, "w") as f:
+            f.write(output)
+    except (PermissionError, IndexError):
+        print(output)
+
+
+if __name__ == "__main__":
+    handle()
 
 
 """

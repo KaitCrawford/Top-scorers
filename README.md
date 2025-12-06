@@ -9,7 +9,7 @@ Demo application made for a tech assessment
 5. Run migrations `python src/migrations_0001.py`
 
 ## Running instructions:
-- To run script: `python src/top_scorers.py input_file.csv`
+- To run script: `python -m src.top_scorers input_file.csv`
 - To run api: `fastapi run src/api.py`
 
 ## API endpoints:
