@@ -11,6 +11,9 @@ def find_highest(input: str):
     with the highest score. Each line in input is "First Name,Second Name,Score"
     Outputs tupple with highest score and list of names with that store.
     Each unique First Name, Second Name pair is stored in the database
+    NOTE: It's slightly more efficient to parse the csv and find the highest in the
+    same loop. But it's better practise to extract the csv parsing into it's own
+    method. That would be more reusable and maintainable.
     """
     highest_scorers = []
     highest_score = 0
@@ -48,6 +51,8 @@ def find_highest(input: str):
 def handle():
     """
     Handles the program opperation. Loads specified file and writes output
+    Optionally accepts second arg of the file to write the output to. Writes to stdout
+    by default.
     """
     try:
         input_file = sys.argv[1]
