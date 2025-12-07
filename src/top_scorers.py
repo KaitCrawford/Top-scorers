@@ -29,8 +29,10 @@ def find_highest(input: str):
 
             details = line.split(",")
 
-            # Add row to db
+            # NOTE: Should add exception handling here in case the input rows aren't
+            # correctly formatted
             db_object = UserScore(first_name=details[0], second_name=details[1], score=int(details[2]))
+            # Add row to db
             create_or_update_user_score(db_object, session)
 
             # Find highest scorers
@@ -70,7 +72,7 @@ def handle():
     counter = 0
     for name in sorted_users:
         output += f"{name}"
-        if counter != len(sorted_users):
+        if counter != len(sorted_users)-1:
             output += " "
             counter += 1
 
