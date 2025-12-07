@@ -69,13 +69,7 @@ def handle():
     output = ""
     # Sort the users alphabetically
     sorted_users = sorted(highest_users)
-    counter = 0
-    for name in sorted_users:
-        output += f"{name}"
-        if counter != len(sorted_users)-1:
-            output += " "
-            counter += 1
-
+    output += " ".join(sorted_users)
     output += f"\nScore: {highest_score}"
 
     try:
